@@ -2,7 +2,7 @@
 
 A capa do álbum *Currents* (Tame Impala, 2015) mostra uma esfera metálica sobre linhas roxas paralelas que se ondulam atrás dela. Este projeto simula em 3D um fluido passando por uma esfera e solta linhas de corante como as da capa, pra ver se o desenho obedece as equações de Navier-Stokes.
 
-**Página com resultados, imagens e animações:** https://peterhbj.github.io/currents-navier-strokes/
+**Página com resultados, imagens e animações:** https://peterhbj.github.io/currents-navier-stokes/
 
 ![Comparação entre a capa e a simulação](resultados/comparacao.png)
 
