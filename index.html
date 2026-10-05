@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Simulação 3D de Navier-Stokes comparada com a capa do álbum Currents, do Tame Impala.">
+<title>Currents contra Navier-Stokes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}
+/* Layout: coluna única de leitura (~68ch) com figuras sangrando até 1100px; visual escuro único, tirado da capa */
+:root {
+  color-scheme: dark;
+  --bg: #0b0810;
+  --surface: #161120;
+  --line: #2c2340;
+  --fg: #ece6f5;
+  --muted: #a99cbf;
+  --lilac: #c49cf0;
+  --red: #ff4d5e;
+  --amber: #ffb340;
+  --good: #7fdca4;
+  --display: "Syne", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 400 1rem/1.65 var(--body); }
+.wrap { max-width: 1100px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; display: flex; flex-direction: column; gap: 56px; }
+.prose { max-width: 68ch; display: flex; flex-direction: column; gap: 14px; }
+header { display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 500 .78rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--lilac); }
+h1 { font: 800 clamp(2.2rem, 7vw, 4.6rem)/1 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--red); }
+h2 { font: 700 clamp(1.4rem, 3.4vw, 2rem)/1.15 var(--display); margin: 0; text-wrap: balance; }
+h3 { font: 600 1.05rem/1.3 var(--body); margin: 0; }
+p { margin: 0; }
+.lede { font-size: 1.15rem; color: var(--fg); }
+.muted { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 20px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+figure img, figure video { width: 100%; max-width: 100%; height: auto; display: block; border-radius: 4px; background: var(--surface); }
+figcaption { font: 400 .85rem/1.5 var(--mono); color: var(--muted); max-width: 80ch; }
+figcaption b { color: var(--fg); font-weight: 500; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.verdict { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 28px; }
+.verdict > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.tag { font: 500 .75rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.tag.ok { color: var(--good); }
+.tag.no { color: var(--red); }
+ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 8px; }
+.tablebox { overflow-x: auto; }
+table { border-collapse: collapse; font: 400 .92rem/1.4 var(--mono); font-variant-numeric: tabular-nums; min-width: 520px; width: 100%; }
+th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 500; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+td.num { color: var(--lilac); }
+.metric { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+.metric div { background: var(--surface); padding: 18px; border-radius: 4px; display: flex; flex-direction: column; gap: 6px; }
+.metric .big { font: 800 2rem/1 var(--display); color: var(--amber); }
+.metric .big.sim { color: var(--lilac); }
+code { font-family: var(--mono); font-size: .9em; color: var(--lilac); }
+footer { font: 400 .82rem/1.6 var(--mono); color: var(--muted); border-top: 1px solid var(--line); padding-top: 20px; }
+:focus-visible { outline: 2px solid var(--lilac); outline-offset: 3px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Simulação de fluidos · Tame Impala, Currents (2015)</span>
+    <h1>A capa de Currents obedece <em>Navier-Stokes</em>?</h1>
+    <p class="lede prose">Rodei uma simulação 3D de um fluido passando por uma esfera e soltei linhas de corante no plano que corta o centro dela, como as linhas roxas da capa. A ideia da capa é fisicamente certa. O desenho é que exagera.</p>
+  </header>
+
+  <section>
+    <div class="pair">
+      <figure>
+        <img src="capa.jpg" alt="Capa do álbum Currents: esfera metálica sobre linhas roxas paralelas que se ondulam atrás dela">
+        <figcaption><b>A capa.</b> Linhas retas na frente da bola e meandros atrás. A linha vermelha bate na bola e segue pela esteira.</figcaption>
+      </figure>
+      <figure>
+        <img src="sim_perspectiva.jpg" alt="Renderização da simulação com câmera parecida com a da capa">
+        <figcaption><b>A simulação, Re = 1000</b>, com câmera parecida. Na frente, as linhas ficam retas. Atrás, a esteira vira um emaranhado 3D.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="verdict" aria-label="Veredito">
+    <div>
+      <span class="tag ok">O que a capa acerta</span>
+      <ul>
+        <li><b>A direção.</b> Se o fluido vem do fundo da imagem (ou a bola se afasta de quem olha), as linhas ficam retas na frente e tudo se perturba atrás. A 1 e a 2 diâmetros antes da bola, o desvio na simulação foi zero.</li>
+        <li><b>A linha vermelha</b> se comporta como um filete de corante que bate no ponto de estagnação, contorna a bola e é puxado pra dentro da esteira.</li>
+        <li><b>Linhas que não se cruzam</b> e mantêm o espaçamento: é o que um fluido incompressível faz em 2D, como na marmorização de papel.</li>
+      </ul>
+    </div>
+    <div>
+      <span class="tag no">Onde ela erra</span>
+      <ul>
+        <li><b>A esteira é larga demais.</b> Logo atrás da bola, a capa já perturba uma faixa de 3 diâmetros ou mais, inclusive ao lado dela.</li>
+        <li><b>A turbulência real é 3D.</b> O corante sai do plano e as linhas se cruzam. Na capa, os meandros são suaves e comportados.</li>
+        <li><b>Se a bola vem na direção de quem olha</b>, deixando a linha vermelha como rastro, a capa viola a física de vez, porque o rastro atrás dela está perfeitamente reto.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Largura da região perturbada</h2>
+    <div class="metric">
+      <div><span class="big">≥ 3 D</span><span class="muted">Capa, logo atrás da bola (estimado pelo mapa de orientação, em perspectiva)</span></div>
+      <div><span class="big sim">2,3 D</span><span class="muted">Simulação, pico a 1 D atrás, contando linhas que só desviam em volta da esfera</span></div>
+      <div><span class="big sim">1,2–1,4 D</span><span class="muted">Simulação, esteira turbulenta de 4 a 8 D atrás</span></div>
+    </div>
+    <p class="muted prose">D é o diâmetro da esfera. "Perturbada" quer dizer que o desvio da linha passa de 0,1 D, medido em 20 instantes da simulação.</p>
+  </section>
+
+  <section>
+    <h2>Animações</h2>
+    <figure>
+      <video src="anim_topo.mp4" poster="poster_topo.jpg" controls muted loop playsinline preload="metadata"></video>
+      <figcaption><b>Vista de cima, Re = 1000.</b> O corante entra pela esquerda, contorna a esfera e se embaralha nos vórtices que se soltam dela.</figcaption>
+    </figure>
+    <figure>
+      <video src="anim_perspectiva.mp4" poster="poster_persp.jpg" controls muted loop playsinline preload="metadata"></video>
+      <figcaption><b>Mesmo escoamento, câmera da capa.</b></figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Dois regimes</h2>
+    <p class="prose">A primeira rodada, em Re = 500, deu uma bolha de recirculação estacionária. O modelo de turbulência pôs viscosidade demais perto da esfera. Na segunda, em Re = 1000, com menos viscosidade artificial e uma perturbação pequena na entrada, a esteira ficou instável e passou a soltar vórtices.</p>
+    <figure>
+      <img src="topo_re500.jpg" alt="Vista de cima em Re=500: bolha simétrica atrás da esfera">
+      <figcaption><b>Re = 500.</b> Esteira estacionária e simétrica. Nada parecido com a capa.</figcaption>
+    </figure>
+    <figure>
+      <img src="topo_re1000.jpg" alt="Vista de cima em Re=1000: esteira turbulenta">
+      <figcaption><b>Re = 1000.</b> Esteira turbulenta. As linhas do lado de fora quase não se mexem.</figcaption>
+    </figure>
+    <figure>
+      <img src="vorticidade.jpg" alt="Mapa de vorticidade no plano central">
+      <figcaption><b>Vorticidade ω<sub>z</sub> no plano central, Re = 1000.</b> Laranja gira num sentido, roxo no outro.</figcaption>
+    </figure>
+    <figure>
+      <img src="capa_perturbacao.jpg" alt="Capa com as regiões perturbadas em amarelo">
+      <figcaption><b>Mapa de perturbação da capa.</b> Amarelo marca onde as linhas deixam de ser retas e paralelas (tensor de estrutura). As bordas pretas da imagem também acendem; ignore.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>O solver confere com experimentos?</h2>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Grandeza</th><th>Simulação</th><th>Literatura</th></tr></thead>
+        <tbody>
+          <tr><td>Arrasto C<sub>d</sub>, Re = 100 (teste)</td><td class="num">1,21</td><td>≈ 1,09</td></tr>
+          <tr><td>Arrasto C<sub>d</sub>, Re = 500</td><td class="num">0,572</td><td>≈ 0,55–0,57</td></tr>
+          <tr><td>Arrasto C<sub>d</sub>, Re = 1000</td><td class="num">0,55</td><td>≈ 0,47–0,50</td></tr>
+          <tr><td>Strouhal St, Re = 1000</td><td class="num">0,13</td><td>≈ 0,13–0,20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted prose">Os desvios de 5 a 10% vêm da esfera "em degraus" numa malha grossa e do bloqueio do domínio finito.</p>
+  </section>
+
+  <section class="prose">
+    <h2>Como foi feito</h2>
+    <ul>
+      <li>Lattice Boltzmann D3Q19 em C com OpenMP, colisão BGK e turbulência LES Smagorinsky.</li>
+      <li>Malha de 448 × 160 × 128 (9,2 milhões de células), esfera com 32 células de diâmetro, ~95 milhões de células atualizadas por segundo num i7 de 4 núcleos.</li>
+      <li>13.000 passos por rodada, cerca de 21 minutos cada.</li>
+      <li>128 linhas de corante (streaklines) soltas a montante, no plano que corta o centro da esfera, e advectadas em 3D com Runge-Kutta 2.</li>
+    </ul>
+    <p class="muted">Limites da renderização: fora do domínio lateral (~5 D de largura) as linhas são retas de preenchimento, porque ali o desvio fica abaixo de 1%. A montante do ponto de soltura, as linhas foram prolongadas em linha reta.</p>
+    <p class="muted">A bola parece meio afundada numa superfície. Se aquilo for a superfície livre de um líquido, as ondas de gravidade abririam um "V" de perturbação (a esteira de Kelvin, com meio-ângulo de 19,5°), o que explicaria em parte a largura exagerada. Essa versão não foi simulada.</p>
+  </section>
+
+  <footer>Código e dados: <a href="https://github.com/peterhbj/currents-navier-stokes" style="color:var(--lilac)">github.com/peterhbj/currents-navier-stokes</a></footer>
+</div>
+</html>
